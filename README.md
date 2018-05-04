@@ -1,0 +1,1 @@
+# sbt-schema-registry
