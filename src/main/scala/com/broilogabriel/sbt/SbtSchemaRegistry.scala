@@ -1,7 +1,8 @@
 package com.broilogabriel.sbt
 
+import java.nio.file.Paths
+
 import com.broilogabriel.core.SchemaDownloader
-import com.typesafe.config.ConfigFactory
 import sbt._
 import complete.DefaultParsers._
 
@@ -42,7 +43,10 @@ object SbtSchemaRegistry extends AutoPlugin {
         }
       System.out.println(s"\n\n")
     },
-    schemaRegistryDebugMode in schemaRegistryDownload := false
+    schemaRegistryDebugMode in schemaRegistryDownload := false,
+    schemaRegistryTargetFolder in schemaRegistryDownload :=
+      Paths.get(Keys.baseDirectory.value.getAbsolutePath, "target", "generated-resources", "avro").toAbsolutePath
+        .toString
   )
 
 }
