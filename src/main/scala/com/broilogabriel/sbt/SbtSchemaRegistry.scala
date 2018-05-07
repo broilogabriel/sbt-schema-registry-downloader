@@ -14,6 +14,7 @@ object SbtSchemaRegistry extends AutoPlugin {
     val schemaRegistryDownload = inputKey[Unit]("Download schemas")
 
     val schemaRegistryUrl = settingKey[String]("Url to schema registry")
+    val schemaRegistryTargetFolder = settingKey[String]("Target for storing the avro schemas")
     val schemaRegistrySubjects = settingKey[Seq[String]]("Subject names to download")
     val schemaRegistryDebugMode = settingKey[Boolean]("Enable full stack trace")
   }
@@ -30,7 +31,7 @@ object SbtSchemaRegistry extends AutoPlugin {
       // ConfigFactory.load()
       System.out.println(s"\n\nURL ${schemaRegistryUrl.value}\n")
       Try(SchemaDownloader.getUri(schemaRegistryUrl.value))
-        .map(uri => SchemaDownloader.download(uri, schemaRegistrySubjects.value))
+        .map(uri => SchemaDownloader(uri, schemaRegistrySubjects.value, schemaRegistryTargetFolder.value).download())
         .recover {
           case e =>
             if (schemaRegistryDebugMode.value) {

@@ -1,0 +1,6 @@
+{
+  "subject": "testschema",
+  "version": 1,
+  "id": 1,
+  "schema": "{\"type\":\"record\",\"name\":\"TestSchema\",\"namespace\":\"com.broilogabriel.domain\",\"fields\":[{\"name\":\"id\",\"type\":\"long\"},{\"name\":\"username\",\"type\":\"string\"},{\"name\":\"phone\",\"type\":{\"type\":\"array\",\"items\":\"long\"},\"default\":[]}]}"
+}
