@@ -5,18 +5,20 @@ import java.nio.file.Paths
 
 import akka.NotUsed
 import akka.actor.ActorSystem
+import akka.event.{Logging, LoggingAdapter}
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.Uri.Path
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.unmarshalling.Unmarshal
-import akka.stream.{ActorMaterializer, IOResult}
+import akka.stream.{ActorMaterializer, Attributes, IOResult}
 import akka.stream.scaladsl.{FileIO, Flow, Keep, Sink, Source}
 import akka.util.ByteString
 import argonaut.Argonaut._
 import argonaut._
 import com.broilogabriel.model.Subject
+import com.typesafe.config.ConfigFactory
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContextExecutor, Future}
 
 object SchemaDownloader {
 
@@ -53,14 +55,14 @@ object SchemaDownloader {
           HttpRequest(uri = uri)
       }
 
-  def saveFile(destinationPath: file.Path): Sink[String, Future[IOResult]] = {
-    println(destinationPath.toAbsolutePath.toString)
-    Flow[String]
-      .map(_.decode[Subject])
-      .map(ByteString(_))
-      // TODO: custom path for each file, substream? multiple streams?
-      .toMat(FileIO.toPath(destinationPath))(Keep.right)
-  }
+  // TODO: custom path for each file, substream? multiple streams?
+  def saveFile(destinationPath: file.Path): Sink[String, Future[IOResult]] = Flow[String]
+    .map(_.decodeOption[Subject])
+    .collect {
+      case Some(subject) => subject
+    }
+    .map(_.schemaAsByteString)
+    .toMat(FileIO.toPath(destinationPath))(Keep.right)
 
   /**
     *
@@ -69,8 +71,19 @@ object SchemaDownloader {
     */
   def responseToString(implicit materializer: ActorMaterializer): Flow[HttpResponse, String, NotUsed] =
     Flow[HttpResponse]
-      .filter(_.status == StatusCodes.OK)
-      .map(_.entity)
+      .map {
+        a =>
+          println(a)
+          a
+      }
+      .collect {
+        case response if response.status == StatusCodes.OK =>
+          println(response)
+          response.entity
+        case response =>
+          println(response)
+          throw new Exception(s"Failed: ${response.status}")
+      }
       .mapAsync(1) {
         e =>
           Unmarshal(e).to[String]
@@ -79,19 +92,37 @@ object SchemaDownloader {
 }
 
 case class SchemaDownloader(uri: Uri, subjects: Seq[String], destinationFolder: String) {
-  implicit val system: ActorSystem = ActorSystem() // to get an implicit ExecutionContext into scope
+  private val cl = getClass.getClassLoader
+  implicit val system: ActorSystem = ActorSystem("SchemaDownloaderActorSystem", ConfigFactory.load(cl), cl)
+  implicit val ec: ExecutionContextExecutor = system.dispatcher
   implicit val materializer: ActorMaterializer = ActorMaterializer()
+  implicit val adapter: LoggingAdapter = Logging(system, "logger")
 
-  def download(conn: Flow[HttpRequest, HttpResponse, Future[Http.OutgoingConnection]] = Http().outgoingConnection(uri
-    .authority.toString())): Unit = {
+  def download(conn: Flow[HttpRequest, HttpResponse, Future[Http.OutgoingConnection]] = Http().outgoingConnection(
+    host = uri.authority.host.address(),
+    port = uri.authority.port
+  )) = {
+    val c = Http().outgoingConnectionHttps(
+      host = uri.authority.host.address(),
+      port = uri.authority.port
+    )
     Source.single("subjects")
-      .map(path => HttpRequest(uri = Uri.Empty.withPath(Path(path))))
-      .via(conn)
+      .withAttributes(Attributes.logLevels(onElement = Logging.ErrorLevel))
+      .log("subs")
+      .map {
+        path =>
+          println(path)
+          HttpRequest(uri = Uri.Empty.withPath(Path(path)))
+      }
+      .via(c)
+      .log("yo")
       .via(SchemaDownloader.responseToString)
       .via(SchemaDownloader.searchSubjects(subjects))
-      .via(conn)
+      .via(c)
       .via(SchemaDownloader.responseToString)
-      .to(SchemaDownloader.saveFile(Paths.get(destinationFolder)))
+      .runWith(SchemaDownloader.saveFile(Paths.get(destinationFolder)))
+      .andThen {
+        case _ => system.terminate()
+      }
   }
-
 }

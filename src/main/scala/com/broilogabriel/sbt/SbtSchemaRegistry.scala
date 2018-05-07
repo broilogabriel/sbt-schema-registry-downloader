@@ -28,11 +28,12 @@ object SbtSchemaRegistry extends AutoPlugin {
       System.out.println(s"Hellooou, ${args.head}")
     },
     schemaRegistryDownload in Compile := {
-      // TODO load from config?
-      // ConfigFactory.load()
       System.out.println(s"\n\nURL ${schemaRegistryUrl.value}\n")
       Try(SchemaDownloader.getUri(schemaRegistryUrl.value))
-        .map(uri => SchemaDownloader(uri, schemaRegistrySubjects.value, schemaRegistryTargetFolder.value).download())
+        .map {
+          uri =>
+            SchemaDownloader(uri, schemaRegistrySubjects.value, schemaRegistryTargetFolder.value).download()
+        }
         .recover {
           case e =>
             if (schemaRegistryDebugMode.value) {
@@ -43,10 +44,7 @@ object SbtSchemaRegistry extends AutoPlugin {
         }
       System.out.println(s"\n\n")
     },
-    schemaRegistryDebugMode in schemaRegistryDownload := false,
-    schemaRegistryTargetFolder in schemaRegistryDownload :=
-      Paths.get(Keys.baseDirectory.value.getAbsolutePath, "target", "generated-resources", "avro").toAbsolutePath
-        .toString
+    schemaRegistryDebugMode in schemaRegistryDownload := false
   )
 
 }
