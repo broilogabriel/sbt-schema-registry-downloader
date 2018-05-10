@@ -10,7 +10,7 @@ object Main {
 
   def main(args: Array[String]): Unit = {
     val r = new SchemaDownloader(
-      Uri.Empty.withHost("localhost").withPort(8080),
+      Uri.Empty.withHost("localhost").withPort(8081),
       List("subs"),
       "av.avsc"
     ).download(null)

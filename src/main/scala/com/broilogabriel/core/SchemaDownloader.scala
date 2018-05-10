@@ -5,20 +5,20 @@ import java.nio.file.Paths
 
 import akka.NotUsed
 import akka.actor.ActorSystem
-import akka.event.{Logging, LoggingAdapter}
+import akka.event.{ Logging, LoggingAdapter }
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.Uri.Path
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.unmarshalling.Unmarshal
-import akka.stream.{ActorMaterializer, Attributes, IOResult}
-import akka.stream.scaladsl.{FileIO, Flow, Keep, Sink, Source}
+import akka.stream.{ ActorMaterializer, Attributes, IOResult }
+import akka.stream.scaladsl.{ FileIO, Flow, Keep, Sink, Source }
 import akka.util.ByteString
 import argonaut.Argonaut._
 import argonaut._
 import com.broilogabriel.model.Subject
 import com.typesafe.config.ConfigFactory
 
-import scala.concurrent.{ExecutionContextExecutor, Future}
+import scala.concurrent.{ ExecutionContextExecutor, Future }
 
 object SchemaDownloader {
 
@@ -102,27 +102,27 @@ case class SchemaDownloader(uri: Uri, subjects: Seq[String], destinationFolder: 
     host = uri.authority.host.address(),
     port = uri.authority.port
   )) = {
-    val c = Http().outgoingConnectionHttps(
+    val c = Http().outgoingConnection(
       host = uri.authority.host.address(),
       port = uri.authority.port
     )
-    Source.single("subjects")
-      .withAttributes(Attributes.logLevels(onElement = Logging.ErrorLevel))
-      .log("subs")
-      .map {
-        path =>
-          println(path)
-          HttpRequest(uri = Uri.Empty.withPath(Path(path)))
-      }
+    Source.single("/subjects")
+      .withAttributes(Attributes.logLevels(onElement = Logging.InfoLevel))
+      .map(path => HttpRequest(HttpMethods.GET, uri = path))
       .via(c)
-      .log("yo")
       .via(SchemaDownloader.responseToString)
+      .log("response")
       .via(SchemaDownloader.searchSubjects(subjects))
       .via(c)
       .via(SchemaDownloader.responseToString)
       .runWith(SchemaDownloader.saveFile(Paths.get(destinationFolder)))
       .andThen {
-        case _ => system.terminate()
+        case result =>
+          println(s"Shutting down...$result")
+          Http().shutdownAllConnectionPools().flatMap { _ =>
+            materializer.shutdown()
+            system.terminate()
+          }
       }
   }
 }
