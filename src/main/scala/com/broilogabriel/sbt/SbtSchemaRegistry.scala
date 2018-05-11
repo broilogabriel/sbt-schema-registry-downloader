@@ -1,9 +1,12 @@
 package com.broilogabriel.sbt
 
+import akka.http.scaladsl.model.Uri
 import com.broilogabriel.core.SchemaDownloader
 import sbt._
 import complete.DefaultParsers._
 
+import scala.concurrent.duration.DurationInt
+import scala.concurrent.{ Await, Future }
 import scala.util.Try
 
 object SbtSchemaRegistry extends AutoPlugin {
@@ -18,24 +21,26 @@ object SbtSchemaRegistry extends AutoPlugin {
   }
 
   import autoImport._
+  import scala.concurrent.ExecutionContext.Implicits.global
 
   override lazy val projectSettings = Seq(
     hellow := {
       val args = spaceDelimited("").parsed
       System.out.println(s"Helalooou, ${args.head}")
     },
-    schemaRegistryDownload := {
-      System.out.println(s"\n\nURL ${schemaRegistryUrl.value}\n")
-      Try(SchemaDownloader.getUri(schemaRegistryUrl.value))
-        .map {
+    schemaRegistryDownload in Compile := {
+      System.out.println(
+        s"""
+           |schemaRegistryUrl: ${schemaRegistryUrl.value}
+           |schemaRegistryTargetFolder: ${schemaRegistryTargetFolder.value}
+           |schemaRegistrySubjects: ${schemaRegistrySubjects.value.mkString(",")}
+           |""".stripMargin)
+      val res = Future.fromTry(Try[Uri](SchemaDownloader.getUri(schemaRegistryUrl.value)))
+        .flatMap {
           uri =>
             SchemaDownloader(uri, schemaRegistrySubjects.value, schemaRegistryTargetFolder.value).download()
         }
-        .recover {
-          case e =>
-              System.err.println(s"Failed to download schemas ${e.getMessage}. Run with ")
-              e.printStackTrace()
-        }
+      Await.result(res, 2.minutes)
       System.out.println(s"\n\n")
     }
   )

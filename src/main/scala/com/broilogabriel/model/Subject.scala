@@ -10,5 +10,5 @@ object Subject {
 }
 
 case class Subject(subject: String, version: Long, id: Long, schema: String) extends Serializable {
-  def schemaAsByteString = ByteString(schema)
+  def schemaAsByteString = ByteString(schema + "\n")
 }
