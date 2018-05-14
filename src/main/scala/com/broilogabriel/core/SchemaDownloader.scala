@@ -3,7 +3,7 @@ package com.broilogabriel.core
 import java.nio.file
 
 import akka.actor.ActorSystem
-import akka.event.{ Logging, LoggingAdapter }
+import akka.event.Logging
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.Uri.Path
 import akka.http.scaladsl.model._
@@ -15,7 +15,7 @@ import argonaut.Argonaut._
 import argonaut._
 import com.broilogabriel.model.Subject
 import com.typesafe.config.ConfigFactory
-import sbt.util.Logger
+import org.slf4j
 
 import scala.concurrent.{ ExecutionContextExecutor, Future }
 
@@ -82,7 +82,7 @@ object SchemaDownloader {
 
 }
 
-case class SchemaDownloader(uri: Uri, subjects: Seq[String], folderPath: file.Path)(implicit logger: Logger) {
+case class SchemaDownloader(uri: Uri, subjects: Seq[String], folderPath: file.Path)(implicit logger: slf4j.Logger) {
   private val cl = getClass.getClassLoader
   implicit val system: ActorSystem = ActorSystem("SchemaDownloaderActorSystem", ConfigFactory.load(cl), cl)
   implicit val ec: ExecutionContextExecutor = system.dispatcher
@@ -90,7 +90,7 @@ case class SchemaDownloader(uri: Uri, subjects: Seq[String], folderPath: file.Pa
 
   def download(conn: Flow[HttpRequest, HttpResponse, Future[Http.OutgoingConnection]] = Http().outgoingConnection(
     host = uri.authority.host.address(),
-    port = uri.authority.port
+    port = uri.effectivePort
   )): Future[Done] = {
     Source.single("/subjects")
       .withAttributes(Attributes.logLevels(onElement = Logging.InfoLevel))
@@ -101,7 +101,7 @@ case class SchemaDownloader(uri: Uri, subjects: Seq[String], folderPath: file.Pa
       .via(conn)
       .via(SchemaDownloader.responseToString)
       .via(SchemaDownloader.saveFile(folderPath))
-      .runWith(Sink.foreach(logger.info(_)))
+      .runWith(Sink.foreach(logger.info))
       .andThen {
         case _ =>
           logger.info("Shutting down...")

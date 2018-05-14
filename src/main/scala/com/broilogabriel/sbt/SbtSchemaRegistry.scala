@@ -6,7 +6,9 @@ import akka.http.scaladsl.model.Uri
 import com.broilogabriel.core.SchemaDownloader
 import sbt._
 import complete.DefaultParsers._
-import sbt.Keys.{ logLevel, _ }
+import org.slf4j
+import sbt.Keys._
+import sbt.Keys.logLevel
 
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ Await, Future }
@@ -34,7 +36,8 @@ object SbtSchemaRegistry extends AutoPlugin {
     },
     logLevel in schemaRegistryDownload := (logLevel ?? Level.Info).value,
     schemaRegistryDownload in Compile := {
-      implicit val logger: Logger = streams.value.log
+      val loggerName = streams.value.log.name
+      implicit val logger: slf4j.Logger = org.slf4j.LoggerFactory.getLogger(loggerName)
       logger.debug(s"schemaRegistryUrl: ${schemaRegistryUrl.value}")
       logger.debug(s"schemaRegistryTargetFolder: ${schemaRegistryTargetFolder.value}")
       logger.debug(s"schemaRegistrySubjects: ${schemaRegistrySubjects.value.mkString(",")}")
