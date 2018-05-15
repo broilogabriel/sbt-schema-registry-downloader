@@ -10,5 +10,7 @@ object Subject {
 }
 
 case class Subject(subject: String, version: Long, id: Long, schema: String) extends Serializable {
-  def schemaAsByteString = ByteString(schema)
+  val filename = s"$subject-$version.avsc"
+
+  def schemaAsByteString = ByteString(schema + "\n")
 }

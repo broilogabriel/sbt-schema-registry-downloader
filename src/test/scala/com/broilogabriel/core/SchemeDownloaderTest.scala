@@ -6,15 +6,14 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.model.Uri.Path
 import akka.http.scaladsl.model._
 import akka.stream.testkit.scaladsl.TestSink
-import akka.stream.{ActorMaterializer, ActorMaterializerSettings, scaladsl}
-import akka.testkit.{TestKit, TestProbe}
+import akka.stream.{ ActorMaterializer, ActorMaterializerSettings, scaladsl }
+import akka.testkit.{ TestKit, TestProbe }
 import argonaut.EncodeJsons
 import argonaut.JsonIdentity.ToJsonIdentity
 import org.scalamock.scalatest.MockFactory
 import org.scalatest._
-
-import scala.concurrent.Await
-import scala.concurrent.duration.Duration
+import org.slf4j
+import org.slf4j.LoggerFactory
 
 class SchemeDownloaderTest extends TestKit(ActorSystem("SchemeDownloaderTest")) with FlatSpecLike with Matchers with
   MockFactory with EncodeJsons {
@@ -22,8 +21,9 @@ class SchemeDownloaderTest extends TestKit(ActorSystem("SchemeDownloaderTest")) 
   implicit val materializer: ActorMaterializer = ActorMaterializer(ActorMaterializerSettings(system))
 
   trait Downloader {
+    implicit val logger: slf4j.Logger = LoggerFactory.getLogger(Downloader.this.getClass)
     val downloader = SchemaDownloader(Uri.Empty.withHost("www.schemaregistry.com").withScheme("http"), Seq
-    ("testschema"), "")
+    ("testschema"), Paths.get(System.getProperty("java.io.tmpdir")))
   }
 
   trait Schemas extends EncodeJsons {
@@ -67,6 +67,13 @@ class SchemeDownloaderTest extends TestKit(ActorSystem("SchemeDownloaderTest")) 
     uri.authority.toString() should be("localhost:8080")
   }
 
+  it should "return a valid uri for a domain" in {
+    val uri = SchemaDownloader.getUri("http://schemaregistry.broilogabriel.com")
+    uri.scheme should be("http")
+    uri.authority.host.address() should be("schemaregistry.broilogabriel.com")
+    uri.effectivePort should be(80)
+  }
+
   "When searching subjects" should "create the next request with the ones found" in new Downloader with Schemas {
     val probe = TestProbe()
     val responseEntity: String = (subjects :+ "invalid").asJson.nospaces
@@ -89,13 +96,12 @@ class SchemeDownloaderTest extends TestKit(ActorSystem("SchemeDownloaderTest")) 
   }
 
   "Saving files" should "" in new Downloader with Schemas {
-    val probe = TestProbe()
-    val r = scaladsl.Source.single(subject_testschema)
-      .runWith(SchemaDownloader.saveFile(Paths.get(System.getProperty("java.io.tmpdir"), "test.avro")))
-
-    val x = Await.result(r, Duration.Inf)
-    println(x)
-
+    //    val probe = TestProbe()
+    //    val r = scaladsl.Source.single(subject_testschema)
+    //      .runWith(SchemaDownloader.saveFile(Paths.get(System.getProperty("java.io.tmpdir"), "test.avro")))
+    //
+    //    val x = Await.result(r, Duration.Inf)
+    //    println(x)
   }
 
 }
