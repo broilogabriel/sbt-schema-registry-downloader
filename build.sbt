@@ -7,6 +7,7 @@ lazy val root = (project in file(".")).
     mainClass in(Compile, run) := Some("com.broilogabriel.Main"),
     sbtPlugin := true,
     sbtVersion := "1.1.4",
+    coverageEnabled := true,
     isSnapshot := true // workaround to be able to overwrite the file when executing publishLocal
   )
 
