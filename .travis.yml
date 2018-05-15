@@ -17,3 +17,6 @@ script:
   - sbt coverageReport
   - sbt coverageAggregate
   - sbt codacyCoverage
+
+notifications:
+  email: false
