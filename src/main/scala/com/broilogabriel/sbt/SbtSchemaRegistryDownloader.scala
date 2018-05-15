@@ -4,20 +4,17 @@ import java.nio.file.{ Files, Paths }
 
 import akka.http.scaladsl.model.Uri
 import com.broilogabriel.core.SchemaDownloader
-import sbt._
-import complete.DefaultParsers._
 import org.slf4j
-import sbt.Keys._
-import sbt.Keys.logLevel
+import sbt.Keys.{ logLevel, _ }
+import sbt._
 
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ Await, Future }
 import scala.util.Try
 
-object SbtSchemaRegistry extends AutoPlugin {
+object SbtSchemaRegistryDownloader extends AutoPlugin {
 
   object autoImport {
-    val hellow = inputKey[Unit]("Says hello!")
     val schemaRegistryDownload = taskKey[Unit]("Download schemas")
 
     val schemaRegistryUrl = settingKey[String]("Url to schema registry")
@@ -30,10 +27,6 @@ object SbtSchemaRegistry extends AutoPlugin {
   import scala.concurrent.ExecutionContext.Implicits.global
 
   override lazy val projectSettings = Seq(
-    hellow := {
-      val args = spaceDelimited("").parsed
-      System.out.println(s"Helalooou, ${args.head}")
-    },
     logLevel in schemaRegistryDownload := (logLevel ?? Level.Info).value,
     schemaRegistryDownload in Compile := {
       val loggerName = streams.value.log.name
