@@ -1,3 +1,3 @@
-# sbt-schema-registry
+[![Build Status](https://travis-ci.com/broilogabriel/sbt-schema-registry.svg?branch=master)](https://travis-ci.com/broilogabriel/sbt-schema-registry) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/50ce88eeadfc4b4f91fbfe8800aa2876)](https://app.codacy.com/app/broilogabriel/sbt-schema-registry?utm_source=github.com&utm_medium=referral&utm_content=broilogabriel/sbt-schema-registry&utm_campaign=badger)
 
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/50ce88eeadfc4b4f91fbfe8800aa2876)](https://app.codacy.com/app/broilogabriel/sbt-schema-registry?utm_source=github.com&utm_medium=referral&utm_content=broilogabriel/sbt-schema-registry&utm_campaign=badger)
+# sbt-schema-registry
