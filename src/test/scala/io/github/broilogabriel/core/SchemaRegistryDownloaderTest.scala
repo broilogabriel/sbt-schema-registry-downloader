@@ -1,4 +1,4 @@
-package com.broilogabriel.core
+package io.github.broilogabriel.core
 
 import java.nio.file.Paths
 

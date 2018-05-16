@@ -1,12 +1,12 @@
-package com.broilogabriel.sbt
+package io.github.broilogabriel.sbt
 
 import java.nio.file.{ Files, Paths }
 
 import akka.http.scaladsl.model.Uri
-import com.broilogabriel.core.SchemaDownloader
+import io.github.broilogabriel.core.SchemaDownloader
 import org.slf4j
-import sbt.Keys.{ logLevel, _ }
-import sbt._
+import sbt.Keys.{ logLevel, streams }
+import sbt.{ AutoPlugin, Compile, Level, settingKey, taskKey }
 
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ Await, Future }
