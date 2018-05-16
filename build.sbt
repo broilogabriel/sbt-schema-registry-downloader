@@ -1,6 +1,6 @@
 lazy val root = (project in file(".")).
   settings(
-    name := "sbt-schema-registry",
+    name := "sbt-schema-registry-downloader",
     version := "0.0.1-SNAPSHOT",
     organization := "com.broilogabriel",
     scalaVersion := "2.12.6",

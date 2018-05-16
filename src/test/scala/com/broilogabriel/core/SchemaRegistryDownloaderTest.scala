@@ -15,8 +15,8 @@ import org.scalatest._
 import org.slf4j
 import org.slf4j.LoggerFactory
 
-class SchemeDownloaderTest extends TestKit(ActorSystem("SchemeDownloaderTest")) with FlatSpecLike with Matchers with
-  MockFactory with EncodeJsons {
+class SchemaRegistryDownloaderTest extends TestKit(ActorSystem("SchemeDownloaderTest")) with FlatSpecLike with
+  Matchers with MockFactory with EncodeJsons {
 
   implicit val materializer: ActorMaterializer = ActorMaterializer(ActorMaterializerSettings(system))
 
