@@ -1,4 +1,4 @@
-package com.broilogabriel.core
+package io.github.broilogabriel.core
 
 import java.nio.file
 
@@ -13,8 +13,8 @@ import akka.stream.{ ActorMaterializer, Attributes }
 import akka.{ Done, NotUsed }
 import argonaut.Argonaut._
 import argonaut._
-import com.broilogabriel.model.Subject
 import com.typesafe.config.ConfigFactory
+import io.github.broilogabriel.model.Subject
 import org.slf4j
 
 import scala.concurrent.{ ExecutionContextExecutor, Future }

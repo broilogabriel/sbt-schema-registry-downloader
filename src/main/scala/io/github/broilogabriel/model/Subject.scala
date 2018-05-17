@@ -1,4 +1,4 @@
-package com.broilogabriel.model
+package io.github.broilogabriel.model
 
 import akka.util.ByteString
 import argonaut.Argonaut.casecodec4

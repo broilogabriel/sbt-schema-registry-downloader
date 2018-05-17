@@ -1,9 +1,9 @@
-package com.broilogabriel
+package io.github.broilogabriel
 
 import java.nio.file.Paths
 
 import akka.http.scaladsl.model.Uri
-import com.broilogabriel.core.SchemaDownloader
+import io.github.broilogabriel.core.SchemaDownloader
 import org.slf4j
 import org.slf4j.LoggerFactory
 
