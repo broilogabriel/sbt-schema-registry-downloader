@@ -13,10 +13,8 @@ cache:
     - $HOME/.sbt/boot/
 
 script:
-  - sbt clean coverage test
-  - sbt coverageReport
-  - sbt coverageAggregate
-  - sbt codacyCoverage
+  - sbt clean coverageOn coverage test
+  - sbt coverageOn coverageReport coverageAggregate codacyCoverage
 
 notifications:
   email: false
