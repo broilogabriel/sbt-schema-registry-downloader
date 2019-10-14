@@ -45,9 +45,9 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.0.5" % Test,
   "org.scalamock" %% "scalamock" % "4.1.0" % Test,
   "io.argonaut" %% "argonaut" % "6.2",
-  "com.typesafe.akka" %% "akka-http" % "10.1.1",
-  "com.typesafe.akka" %% "akka-stream" % "2.5.12",
-  "com.typesafe.akka" %% "akka-stream-testkit" % "2.5.12" % Test,
-  "com.typesafe.akka" %% "akka-slf4j" % "2.5.12",
+  "com.typesafe.akka" %% "akka-http" % "10.1.10",
+  "com.typesafe.akka" %% "akka-stream" % "2.5.25",
+  "com.typesafe.akka" %% "akka-stream-testkit" % "2.5.25" % Test,
+  "com.typesafe.akka" %% "akka-slf4j" % "2.5.25",
   "com.typesafe.scala-logging" %% "scala-logging" % "3.9.0"
 )
