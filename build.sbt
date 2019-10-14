@@ -1,12 +1,12 @@
 lazy val root = (project in file(".")).
   settings(
     name := "sbt-schema-registry-downloader",
-    version := "0.0.1-SNAPSHOT",
+    version := "0.1.0-SNAPSHOT",
     organization := "io.github.broilogabriel",
     scalaVersion := "2.12.6",
     mainClass in(Compile, run) := Some("io.github.broilogabriel.Main"),
     sbtPlugin := true,
-    sbtVersion := "1.1.4",
+    sbtVersion := "1.2.8",
     coverageEnabled := true,
     isSnapshot := true // workaround to be able to overwrite the file when executing publishLocal
   )
