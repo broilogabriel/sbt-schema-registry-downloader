@@ -1,14 +1,43 @@
+import sbt.Keys.{ organization, publishArtifact }
+
 lazy val root = (project in file(".")).
   settings(
     name := "sbt-schema-registry-downloader",
-    version := "0.1.0-SNAPSHOT",
     organization := "io.github.broilogabriel",
-    scalaVersion := "2.12.6",
+    description := "Sbt plugin to download avro schemas from schema registry",
+    version := "0.1.0-SNAPSHOT",
+    //    scalaVersion := "2.12.6",
+    scalaVersion := appConfiguration.value.provider.scalaProvider.version,
     mainClass in(Compile, run) := Some("io.github.broilogabriel.Main"),
     sbtPlugin := true,
     sbtVersion := "1.2.8",
     coverageEnabled := true,
-    isSnapshot := true // workaround to be able to overwrite the file when executing publishLocal
+    // workaround to be able to overwrite the file when executing publishLocal
+    isSnapshot := version.value.trim.endsWith("SNAPSHOT"),
+    publishMavenStyle := true,
+    publishArtifact in Test := false,
+    publishTo := {
+      val nexus = "https://oss.sonatype.org/"
+      if (isSnapshot.value)
+        Some("snapshots" at nexus + "content/repositories/snapshots")
+      else
+        Some("releases" at nexus + "service/local/staging/deploy/maven2")
+    },
+    licenses := Seq("Apache 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
+    homepage := Some(url("https://github.com/broilogabriel/sbt-schema-registry-downloader")),
+    pomExtra := {
+      <scm>
+        <url>git://github.com/broilogabriel/sbt-schema-registry-downloader.git</url>
+        <connection>scm:git://github.com/broilogabriel/sbt-schema-registry-downloader.git</connection>
+      </scm>
+        <developers>
+          <developer>
+            <id>broilogabriel</id>
+            <name>Gabriel Broilo</name>
+            <url>http://github.com/broilogabriel</url>
+          </developer>
+        </developers>
+    }
   )
 
 libraryDependencies ++= Seq(
