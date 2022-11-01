@@ -2,13 +2,14 @@ package io.github.broilogabriel
 
 import java.nio.file.Paths
 
+import scala.concurrent.Await
+import scala.concurrent.duration.Duration
+
 import akka.http.scaladsl.model.Uri
-import io.github.broilogabriel.core.SchemaDownloader
 import org.slf4j
 import org.slf4j.LoggerFactory
 
-import scala.concurrent.Await
-import scala.concurrent.duration.Duration
+import io.github.broilogabriel.core.SchemaDownloader
 
 object Main {
 
