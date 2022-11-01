@@ -9,5 +9,5 @@ This project was created to download schemas from Confluent Schema Registry.
 You can add this plugin by adding the following in your `plugins.sbt` file:
 
 ```sbt
-addSbtPlugin("io.github.broilogabriel" % "sbt-schema-registry-downloader" % "0.0.1-SNAPSHOT")
+addSbtPlugin("io.github.broilogabriel" % "sbt-schema-registry-downloader" % "0.2.0")
 ```
